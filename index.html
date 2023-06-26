@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue.js Editable List</title>
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css">
+  <style>
+    .container {
+      max-width: 500px;
+      margin-top: 20px;
+    }
+
+    .list-group-item {
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <ul class="list-group">
+      <li class="list-group-item" v-for="(item, index) in items" :key="index" @click="selectItem(index)"
+        :class="{ active: index === selectedItemIndex }">
+        {{ item.name }}: {{ item.value }}
+      </li>
+    </ul>
+
+    <div v-if="selectedItemIndex !== null">
+      <h3>Edit Item</h3>
+      <form @submit.prevent="saveItem">
+        <div class="form-group">
+          <label for="value">Value:</label>
+          <input type="text" class="form-control" id="value" v-model="editedItem.value">
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@2.6.14"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        items: [
+          { name: 'foo1', value: 'bar1' },
+          { name: 'foo2', value: 'bar2' },
+          // ... Add more items here
+        ],
+        selectedItemIndex: null,
+        editedItem: { value: '' }
+      },
+      methods: {
+        selectItem(index) {
+          this.selectedItemIndex = index;
+          this.editedItem.value = this.items[index].value;
+        },
+        saveItem() {
+          this.items[this.selectedItemIndex].value = this.editedItem.value;
+          this.selectedItemIndex = null;
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
