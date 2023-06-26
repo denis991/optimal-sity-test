@@ -15,6 +15,9 @@
     .list-group-item {
       cursor: pointer;
     }
+    button{
+      margin: 10px;
+    }
   </style>
 </head>
 
@@ -29,12 +32,26 @@
 
     <div v-if="selectedItemIndex !== null">
       <h3>Edit Item</h3>
-      <form @submit.prevent="saveItem">
+      <form @submit.prevent="saveItem" @keydown="resetValidation">
         <div class="form-group">
           <label for="value">Value:</label>
           <input type="text" class="form-control" id="value" v-model="editedItem.value">
+          <small v-if="validationError" class="text-danger">{{ validationError }}</small>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-danger" @click="deleteItem">Delete</button>
+      </form>
+    </div>
+
+    <div>
+      <h3>Add Item</h3>
+      <form @submit.prevent="addItem">
+        <div class="form-group">
+          <label for="newItemValue">Value:</label>
+          <input type="text" class="form-control" id="newItemValue" v-model="newItemValue">
+          <small v-if="newItemValidationError" class="text-danger">{{ newItemValidationError }}</small>
+        </div>
+        <button type="submit" class="btn btn-success">Add</button>
       </form>
     </div>
   </div>
@@ -50,7 +67,10 @@
           // ... Add more items here
         ],
         selectedItemIndex: null,
-        editedItem: { value: '' }
+        editedItem: { value: '' },
+        newItemValue: '',
+        validationError: '',
+        newItemValidationError: ''
       },
       methods: {
         selectItem(index) {
@@ -58,8 +78,34 @@
           this.editedItem.value = this.items[index].value;
         },
         saveItem() {
-          this.items[this.selectedItemIndex].value = this.editedItem.value;
+          if (this.validateItemValue(this.editedItem.value)) {
+            this.items[this.selectedItemIndex].value = this.editedItem.value;
+            this.selectedItemIndex = null;
+            this.resetValidation();
+          }
+        },
+        deleteItem() {
+          this.items.splice(this.selectedItemIndex, 1);
           this.selectedItemIndex = null;
+          this.resetValidation();
+        },
+        addItem() {
+          if (this.validateItemValue(this.newItemValue)) {
+            this.items.push({ name: 'foo', value: this.newItemValue });
+            this.newItemValue = '';
+            this.newItemValidationError = '';
+          }
+        },
+        validateItemValue(value) {
+          if (value.trim() === '') {
+            this.validationError = 'Value is required.';
+            return false;
+          }
+          return true;
+        },
+        resetValidation() {
+          this.validationError = '';
+          this.newItemValidationError = '';
         }
       }
     });
